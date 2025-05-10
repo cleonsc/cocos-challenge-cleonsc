@@ -1,39 +1,47 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Instrument } from 'src/entities/instrument.entity';
 import { MarketData } from 'src/entities/marketdata.entity';
 import { Order } from 'src/entities/order.entity';
 import { OrderSide, OrderStatus } from 'src/enums/order.enums';
 import { Sorting } from 'src/enums/sorting.enum';
 import { Repository } from 'typeorm';
-import { ShareBalancePosition, SharePosition } from './portfolio.interface';
+import { PortfolioDto, ShareBalancePosition, SharePosition } from './portfolio.interface';
 
 @Injectable()
 export class PortfolioService {
   constructor(
     @InjectRepository(Order) private orderRepo: Repository<Order>,
-    @InjectRepository(Instrument) private instrumentRepo: Repository<Instrument>,
     @InjectRepository(MarketData) private marketDataRepo: Repository<MarketData>,
   ) { }
 
-  async getPortfolio(userId: number) {
+  async getPortfolio(userId: number): Promise<PortfolioDto> {
     const filledOrders: Order[] = await this.getFilledOrdersByUser(userId);
+    if (filledOrders.length === 0) {
+      return {
+        userId,
+        totalValue: 0,
+        availableCash: 0,
+        positions: [],
+      };
+    }
+
     const cash: number = this.getCashByUser(filledOrders);
-    const shares = this.getSharedPositions(filledOrders);
-    const shareMarketBalance: ShareBalancePosition[] = await this.getBalancePosition(shares);
-    const totalValue = shareMarketBalance.reduce((acc, pos) => acc + pos.marketValue, 0) + cash;
+    const shares = this.calculatePositionsFromOrders(filledOrders);
+    const positionsWithMarketData: ShareBalancePosition[] = await this.getBalancePosition(shares);
+    const totalValue = positionsWithMarketData.reduce((acc, pos) => acc + pos.marketValue, 0) + cash;
 
     return {
       userId,
       totalValue,
       availableCash: cash,
-      positions: shareMarketBalance,
+      positions: positionsWithMarketData,
     };
   }
 
   private async getFilledOrdersByUser(userId: number): Promise<Order[]> {
     return this.orderRepo.find({
       where: { user: { id: userId }, status: OrderStatus.FILLED },
+      order: { datetime: Sorting.ASC },
       relations: ['instrument'],
     });
   }
@@ -42,24 +50,38 @@ export class PortfolioService {
     let cash = 0;
 
     for (const order of orders) {
-      if (order.side === OrderSide.CASH_IN) cash += Number(order.size);
-      if (order.side === OrderSide.CASH_OUT) cash -= Number(order.size);
-      if (order.instrument.type === 'MONEDA') {
-        if (order.side === OrderSide.BUY) cash -= Number(order.size) * Number(order.price);
-        if (order.side === OrderSide.SELL) cash += Number(order.size) * Number(order.price);
+      if (order.side === OrderSide.CASH_IN) {
+        cash += Number(order.size);
+      } else if (order.side === OrderSide.CASH_OUT) {
+        cash -= Number(order.size);
+      } else if (order.instrument.type !== 'MONEDA') {
+        if (order.side === OrderSide.BUY) {
+          cash -= Number(order.size) * Number(order.price);
+        } else if (order.side === OrderSide.SELL) {
+          cash += Number(order.size) * Number(order.price);
+        }
       }
     }
 
     return cash;
   }
 
-  private getSharedPositions(orders: Order[]): Map<number, SharePosition> {
+  private calculatePositionsFromOrders(orders: Order[]): Map<number, SharePosition> {
     const shares = new Map<number, SharePosition>();
 
     for (const order of orders) {
       const instrumentId = order.instrument.id;
       if (order.instrument.type === 'MONEDA') continue;
+
+      const size = Number(order.size);
+      const price = Number(order.price);
+
       if (!shares.has(instrumentId)) {
+        if (order.side === OrderSide.SELL) {
+          console.warn(`Invalid sale for instrument ${instrumentId} without previous position.`);
+          continue;
+        }
+
         shares.set(instrumentId, {
           instrument: order.instrument,
           totalSize: 0,
@@ -68,13 +90,26 @@ export class PortfolioService {
       }
 
       const pos = shares.get(instrumentId)!;
+
       if (order.side === OrderSide.BUY) {
-        pos.totalSize += Number(order.size);
-        pos.totalSpent += Number(order.size) * Number(order.price);
+        pos.totalSize += size;
+        pos.totalSpent += size * price;
       } else if (order.side === OrderSide.SELL) {
-        pos.totalSize -= Number(order.size);
+        if (size > pos.totalSize) {
+          console.warn(`Invalid sale: you try to sell ${size} but only have ${pos.totalSize} of ${instrumentId}`);
+          shares.delete(instrumentId); // eliminamos la posición incorrecta
+          continue;
+        }
+
         const avgPrice = pos.totalSpent / pos.totalSize;
-        pos.totalSpent -= Number(order.size) * avgPrice;
+
+        pos.totalSpent -= size * avgPrice;
+        pos.totalSize -= size;
+
+        // evitamos residuos negativos muy chicos
+        if (pos.totalSize <= 0.0001) {
+          shares.delete(instrumentId);
+        }
       }
     }
 
@@ -90,28 +125,27 @@ export class PortfolioService {
   }
 
   private async getBalancePosition(shares: Map<number, SharePosition>): Promise<ShareBalancePosition[]> {
-    const result: ShareBalancePosition[] = [];
+    const results = await Promise.all(
+      Array.from(shares.values()).map(async (share) => {
+        if (share.totalSize <= 0) return null;
 
-    for (const share of shares.values()) {
-      if (share.totalSize <= 0) continue;
+        const marketData = await this.getMarketDataOrder(share.instrument.id, Sorting.DESC);
+        const currentPrice = Number(marketData?.close ?? 0);
+        const marketValue = share.totalSize * currentPrice;
+        const avgPrice = share.totalSpent / share.totalSize;
+        const performance = avgPrice > 0 ? ((currentPrice - avgPrice) / avgPrice) * 100 : 0;
 
-      const marketData = await this.getMarketDataOrder(share.instrument.id, Sorting.DESC);
+        return {
+          instrumentId: share.instrument.id,
+          ticker: share.instrument.ticker,
+          name: share.instrument.name,
+          quantity: share.totalSize,
+          marketValue,
+          performance,
+        };
+      })
+    );
 
-      const currentPrice = Number(marketData?.close ?? 0);
-      const marketValue = share.totalSize * currentPrice;
-      const avgPrice = share.totalSpent / share.totalSize;
-      const performance = ((currentPrice - avgPrice) / avgPrice) * 100;
-
-      result.push({
-        instrumentId: share.instrument.id,
-        ticker: share.instrument.ticker,
-        name: share.instrument.name,
-        quantity: share.totalSize,
-        marketValue,
-        performance,
-      });
-    }
-
-    return result;
+    return results.filter((r): r is ShareBalancePosition => r !== null);
   }
 }
