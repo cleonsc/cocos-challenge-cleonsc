@@ -9,7 +9,7 @@ export class User {
   @Column()
   email: string;
 
-  @Column()
+  @Column({ name: 'accountnumber' })
   accountNumber: string;
 
   @OneToMany(() => Order, order => order.user)

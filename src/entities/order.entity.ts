@@ -1,5 +1,5 @@
 import { OrderSide, OrderStatus, OrderType } from 'src/enums/order.enums';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Instrument } from './instrument.entity';
 import { User } from './user.entity';
 
@@ -7,12 +7,6 @@ import { User } from './user.entity';
 export class Order {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @Column()
-  instrumentId: number;
-
-  @Column()
-  userId: number;
 
   @Column({
     type: 'enum',
@@ -26,18 +20,20 @@ export class Order {
   @Column('decimal', { precision: 12, scale: 2 })
   price: number;
 
-  @Column({ type: 'enum', enum: OrderType, })
+  @Column({ type: 'enum', enum: OrderType })
   type: OrderType;
 
-  @Column({ type: 'enum', enum: OrderStatus, })
+  @Column({ type: 'enum', enum: OrderStatus })
   status: OrderStatus;
 
   @Column({ type: 'timestamp' })
   datetime: Date;
 
-  @ManyToOne(() => Instrument, instrument => instrument.orders)
+  @ManyToOne(() => Instrument, { eager: true })
+  @JoinColumn({ name: 'instrumentid' })
   instrument: Instrument;
 
-  @ManyToOne(() => User, user => user.orders)
+  @ManyToOne(() => User, { eager: true })
+  @JoinColumn({ name: 'userid' })
   user: User;
 }

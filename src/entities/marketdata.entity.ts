@@ -1,13 +1,10 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Instrument } from './instrument.entity';
 
 @Entity({ name: 'marketdata' })
 export class MarketData {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @Column()
-  instrumentId: number;
 
   @Column('decimal')
   high: number;
@@ -21,12 +18,13 @@ export class MarketData {
   @Column('decimal')
   close: number;
 
-  @Column('decimal')
+  @Column('decimal', { name: 'previousclose' })
   previousClose: number;
 
-  @Column({ type: 'timestamp' })
-  datetime: Date;
+  @Column({ type: 'timestamp', name: 'date' })
+  date: Date;
 
   @ManyToOne(() => Instrument, instrument => instrument.marketData)
+  @JoinColumn({ name: 'instrumentid' })
   instrument: Instrument;
 }
