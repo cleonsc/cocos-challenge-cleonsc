@@ -121,7 +121,6 @@ export class PortfolioService {
       where: { instrument: { id: instrumentId } },
       order: { date: sortBy },
     });
-
   }
 
   private async getBalancePosition(shares: Map<number, SharePosition>): Promise<ShareBalancePosition[]> {
