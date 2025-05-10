@@ -14,3 +14,10 @@ export interface ShareBalancePosition {
   marketValue: number;
   performance: number;
 }
+
+export interface PortfolioDto {
+  userId: number;
+  totalValue: number;
+  availableCash: number;
+  positions: ShareBalancePosition[];
+}
