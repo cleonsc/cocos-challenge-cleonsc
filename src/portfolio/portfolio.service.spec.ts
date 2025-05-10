@@ -1,12 +1,22 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Instrument } from 'src/entities/instrument.entity';
 import { MarketData } from 'src/entities/marketdata.entity';
 import { Order } from 'src/entities/order.entity';
+import { Sorting } from 'src/enums/sorting.enum';
+import { mockMarketData } from './__mocks__/mock-marketData';
+import { mockOrders } from './__mocks__/mock-orders';
 import { PortfolioService } from './portfolio.service';
 
 describe('PortfolioService', () => {
   let service: PortfolioService;
+  const mockOrderRepository = {
+    find: jest.fn(),
+    save: jest.fn(),
+  };
+
+  const mockMarketDataRepository = {
+    find: jest.fn(),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -14,15 +24,11 @@ describe('PortfolioService', () => {
         PortfolioService,
         {
           provide: getRepositoryToken(Order),
-          useValue: {},
-        },
-        {
-          provide: getRepositoryToken(Instrument),
-          useValue: {},
+          useValue: mockOrderRepository,
         },
         {
           provide: getRepositoryToken(MarketData),
-          useValue: {},
+          useValue: mockMarketDataRepository,
         },
       ],
     }).compile();
@@ -32,5 +38,26 @@ describe('PortfolioService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  it('should compute correct positions excluding oversold instruments', async () => {
+    mockOrderRepository.find.mockResolvedValue(mockOrders);
+
+    jest.spyOn(service as any, 'getMarketDataOrder').mockImplementation(async (instrumentId: number, sortBy: Sorting) => {
+      const [first] = mockMarketData.filter((data) => data.instrumentid === instrumentId);
+      return first;
+    });
+
+    const userId = 1;
+    const result = await service.getPortfolio(userId);
+
+    console.log('Result:', result);
+
+    expect(result).toBeDefined();
+    expect(result.positions).toHaveLength(2);
+    expect(result.positions.map((p) => p.ticker)).toEqual(['PAMP', 'METR']);
+    expect(result.positions.map((p) => p.quantity)).toEqual([40, 500]);
+    expect(result.availableCash).toBe(753000);
+    expect(result.totalValue).toBe(904784);
   });
 });
