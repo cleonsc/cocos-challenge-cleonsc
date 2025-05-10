@@ -17,7 +17,7 @@ export class Order {
   @Column('decimal')
   size: number;
 
-  @Column('decimal', { precision: 12, scale: 2 })
+  @Column('decimal', { precision: 3, scale: 2 })
   price: number;
 
   @Column({ type: 'enum', enum: OrderType })
