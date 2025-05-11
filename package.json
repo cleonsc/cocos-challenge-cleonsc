@@ -18,7 +18,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:unit": "NODE_ENV=development jest --testRegex '.*\\.spec\\.ts$'",
-    "test:e2e": "NODE_ENV=test jest --testRegex '.*\\.e2e-spec\\.ts$'"
+    "test:e2e": "NODE_ENV=test jest --testRegex '.*\\.e2e-spec\\.ts$'",
+    "test:all": "npm run test:unit && npm run test:e2e"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

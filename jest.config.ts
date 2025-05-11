@@ -1,6 +1,8 @@
 import type { Config } from 'jest';
 
 const config: Config = {
+  globalSetup: '<rootDir>/test/setup/global-setup.ts',
+  globalTeardown: '<rootDir>/test/setup/global-teardown.ts',
   modulePathIgnorePatterns: ['<rootDir>/dist/'],
   moduleFileExtensions: ['js', 'json', 'ts'],
   rootDir: '.',
