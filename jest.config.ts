@@ -17,6 +17,14 @@ const config: Config = {
   testEnvironment: 'node',
   collectCoverageFrom: ['src/**/*.(t|j)s'],
   coverageDirectory: 'coverage',
+  coveragePathIgnorePatterns: [
+    "/node_modules/",
+    "/src/portfolio/__mocks__/",
+    "/src/main.ts",
+    "\\.spec\\.ts$",
+    "\\.module\\.ts$",
+    "\\.config\\.ts$",
+  ]
 };
 
 export default config;
