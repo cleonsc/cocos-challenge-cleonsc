@@ -51,8 +51,6 @@ describe('PortfolioService', () => {
     const userId = 1;
     const result = await service.getPortfolio(userId);
 
-    console.log('Result:', result);
-
     expect(result).toBeDefined();
     expect(result.positions).toHaveLength(2);
     expect(result.positions.map((p) => p.ticker)).toEqual(['PAMP', 'METR']);
