@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { getTypeOrmConfig } from './config/typeorm.config';
 import { PortfolioModule } from './portfolio/portfolio.module';
+import { InstrumentsModule } from './instruments/instruments.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { PortfolioModule } from './portfolio/portfolio.module';
       useFactory: getTypeOrmConfig,
     }),
     PortfolioModule,
+    InstrumentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
