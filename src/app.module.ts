@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { getTypeOrmConfig } from './config/typeorm.config';
 import { PortfolioModule } from './portfolio/portfolio.module';
 import { InstrumentsModule } from './instruments/instruments.module';
+import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { InstrumentsModule } from './instruments/instruments.module';
     }),
     PortfolioModule,
     InstrumentsModule,
+    OrdersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
