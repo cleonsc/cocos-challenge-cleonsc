@@ -80,8 +80,8 @@ describe('PortfolioService', () => {
       const mockOrders = [
         { side: OrderSide.CASH_IN, size: 1000, instrument: { type: 'MONEDA' } },
         { side: OrderSide.CASH_OUT, size: 500, instrument: { type: 'MONEDA' } },
-        { side: OrderSide.BUY, size: 10, price: 50, instrument: { type: 'ACCION' } },
-        { side: OrderSide.SELL, size: 5, price: 60, instrument: { type: 'ACCION' } },
+        { side: OrderSide.BUY, size: 10, price: 50, instrument: { type: 'ACCIONES' } },
+        { side: OrderSide.SELL, size: 5, price: 60, instrument: { type: 'ACCIONES' } },
       ];
 
       const result = service['getCashByUser'](mockOrders as Order[]);
@@ -94,13 +94,13 @@ describe('PortfolioService', () => {
     it('should calculate positions correctly', () => {
       const mockOrders = [
         {
-          instrument: { id: 1, type: 'ACCION', ticker: 'AAPL', name: 'Apple' },
+          instrument: { id: 1, type: 'ACCIONES', ticker: 'AAPL', name: 'Apple' },
           size: 10,
           price: 150,
           side: OrderSide.BUY,
         },
         {
-          instrument: { id: 1, type: 'ACCION', ticker: 'AAPL', name: 'Apple' },
+          instrument: { id: 1, type: 'ACCIONES', ticker: 'AAPL', name: 'Apple' },
           size: 5,
           price: 160,
           side: OrderSide.SELL,
