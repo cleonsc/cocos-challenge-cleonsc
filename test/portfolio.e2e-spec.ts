@@ -1,13 +1,12 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
-import { App } from 'supertest/types';
 import { DataSource } from 'typeorm';
 import { AppModule } from './../src/app.module';
 import { loadSqlFixture } from './utils/load-sql-fixtures';
 
 describe('PortfolioController (e2e)', () => {
-  let app: INestApplication<App>;
+  let app: INestApplication;
   let dataSource: DataSource;
 
   beforeAll(async () => {
