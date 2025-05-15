@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  cocos-test-db:
+    image: postgres:15
+    container_name: cocos_test_db
+    environment:
+      POSTGRES_DB: cocos_test_db
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_pass
+    ports:
+      - '5433:5432'
+    volumes:
+      - test-db-data:/var/lib/postgresql/data
+
+volumes:
+  test-db-data:
