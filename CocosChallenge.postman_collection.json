@@ -1,0 +1,257 @@
+{
+	"info": {
+		"_postman_id": "29bcca04-db4d-4c0e-9c40-24517a5654d7",
+		"name": "Cocos Challenge",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get portfolio",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/portfolio/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"portfolio",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search instuments by name or ticker",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:3000/instruments/search?ticker=AGRO&name=Aluar",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"instruments",
+						"search"
+					],
+					"query": [
+						{
+							"key": "ticker",
+							"value": "AGRO"
+						},
+						{
+							"key": "name",
+							"value": "Aluar"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get ALL instuments",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:3000/instruments/search",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"instruments",
+						"search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Order BUY - CASH IN",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"instrumentId\": 66,\n    \"userId\": 2,\n    \"size\": 100000,\n    \"type\": \"MARKET\",\n    \"side\": \"CASH_IN\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/orders",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Order BUY - CASH OUT",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"instrumentId\": 66,\n    \"userId\": 2,\n    \"size\": 50000,\n    \"type\": \"MARKET\",\n    \"side\": \"CASH_OUT\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/orders",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Order BUY - LIMIT",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"instrumentId\": 61,\n    \"userId\": 2,\n    \"size\": 10,\n    \"price\": 25.00,\n    \"type\": \"LIMIT\",\n    \"side\": \"BUY\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/orders",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Order BUY - MARKET",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"instrumentId\": 61,\n    \"userId\": 2,\n    \"size\": 10,\n    \"investmentAmount\": 20000,\n    \"type\": \"MARKET\",\n    \"side\": \"BUY\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/orders",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Order SELL - LIMIT",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"instrumentId\": 61,\n    \"userId\": 2,\n    \"size\": 1,\n    \"price\": 500.00,\n    \"type\": \"LIMIT\",\n    \"side\": \"SELL\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/orders",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Order SELL -  MARKET",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"instrumentId\": 61,\n    \"userId\": 2,\n    \"size\": 1,\n    \"type\": \"MARKET\",\n    \"side\": \"SELL\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/orders",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
